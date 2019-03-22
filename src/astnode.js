@@ -17,3 +17,4 @@ function ASTNode(type, value,parent,left,right){
 module.exports = {
     ASTNode
 }
+

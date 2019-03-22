@@ -1,17 +1,6 @@
-var ASTNode = require('./astnode')
 var Stack = require('./stack').Stack;
-var mathTokens = ['='];
-var synaxTokens = ['\'', '"', '(', ')'];
-var sqlTokens = ['in', 'like'];
 
 function Tokenizer() {
-}
-
-function isExists(str) {
-    return [...mathTokens, ...sqlTokens, ...synaxTokens].filter(o => o === str).length > 0;
-}
-function isMathExprOperation(str) {
-    return mathTokens.filter(o => o === str).length > 0;
 }
 
 Tokenizer.prototype.isFullString = function (str) {//这里只对单引号和括号做区分
@@ -75,20 +64,9 @@ Tokenizer.prototype.getMergedArray = function (str) {
             result.push(array[i]);
         }
     }
-    return result;
-}
 
-/**
- * @param {char} ch
- * @returns {type,val,leftNode,rightNode} 
- */
-Tokenizer.prototype.GenerateTokenNode = function (ch) {
-    while (!isExists(ch)) {
-        stack.push(ch);
-    }
-    if (isMathExprOperation(ch) && stack.len) {
-        var exprNode = new ASTNode("MathExpression", 'ch', null, null);
-    }
+    result.forEach(o => o.replace(/(?:^\s+|\s+$)/,"")); //去掉首尾空格
+    return result;
 }
 
 module.exports = {

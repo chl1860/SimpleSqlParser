@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/chl1860/SimpleSqlParser#readme",
   "devDependencies": {
+    "istanbul": "^0.4.5",
     "jest": "^24.5.0"
   }
 }
