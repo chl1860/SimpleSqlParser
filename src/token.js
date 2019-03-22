@@ -65,8 +65,8 @@ Tokenizer.prototype.getMergedArray = function (str) {
 
     for (let i = 0,j=i-1; i < len; i++,j++) { //merge
         if (j!== -1 && result[j] && !this.isFullString(result[j])) {
-           //Todo: !isFullStirng 做合并
-           do{
+
+            do{
                result[j] = `${result[j]} ${array[i]}`
                i++;
            }while(!this.isFullString(result[j])&& i< len)
