@@ -1,0 +1,32 @@
+{
+  "name": "simplesqlparser",
+  "version": "1.0.0",
+  "description": "为 Dlinq 库提供反向的SQL 解析支持 - 将SQL 字符串解析为 DLinq 库的底层SeachFilter 对象【JS 版】",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testRegex": "(/test/.*.spec\\.js)$"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chl1860/SimpleSqlParser.git"
+  },
+  "keywords": [
+    "SQL",
+    "Parser"
+  ],
+  "author": "Seven Chen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chl1860/SimpleSqlParser/issues"
+  },
+  "homepage": "https://github.com/chl1860/SimpleSqlParser#readme",
+  "devDependencies": {
+    "jest": "^24.5.0"
+  }
+}
