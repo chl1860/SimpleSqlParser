@@ -57,21 +57,26 @@ Tokenizer.prototype.isFullString = function (str) {//这里只对单引号和括
     return stack.len === 0
 }
 
-// Tokenizer.prototype.getMergedArray = function (str) {
-//     //step1: split str by space
-//     let array = str.split(/\s/g);
-//     let result = [];
+Tokenizer.prototype.getMergedArray = function (str) {
+    //step1: split str by space
+    let array = str.split(/\s/g);
+    let len = array.length;
+    let result = [];
 
-//     for (let i = 0,j=i-1; i < array.length; i++,j++) { //merge
-//         if (j!== -1 && result[j] && !this.isFullString(result[j])) {
-//            //Todo: !isFullStirng 做合并
-
-//         } else {
-//             result.push(array[i]);
-//         }
-//     }
-//     return result;
-// }
+    for (let i = 0,j=i-1; i < len; i++,j++) { //merge
+        if (j!== -1 && result[j] && !this.isFullString(result[j])) {
+           //Todo: !isFullStirng 做合并
+           do{
+               result[j] = `${result[j]} ${array[i]}`
+               i++;
+           }while(!this.isFullString(result[j])&& i< len)
+            
+        } else {
+            result.push(array[i]);
+        }
+    }
+    return result;
+}
 
 /**
  * @param {char} ch

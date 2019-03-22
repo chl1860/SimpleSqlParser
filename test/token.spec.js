@@ -43,11 +43,10 @@ describe('Tokenizer test',function(){
         expect(result8).toBe(true);
     });
 
-    //Need to change
-    // it('tests merged array method',function(){
-    //     var str = "A and b and '(c, d, e)"
-    //     var result = tokenizer.getMergedArray(str);
+    it('tests merged array method',function(){
+        var str = "A and b and '(c, d, e)'"
+        var result = tokenizer.getMergedArray(str);
 
-    //     expect(result).toEqual(["A","and","b","and","'(c, d, e)'"]);
-    // });
+        expect(result).toEqual(["A","and","b","and","'(c, d, e)'"]);
+    });
 });
