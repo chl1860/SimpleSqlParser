@@ -44,9 +44,14 @@ describe('Tokenizer test',function(){
     });
 
     it('tests merged array method',function(){
-        var str = "A and b and '(c, d, e)'"
+        var str = "A and b and '(c, d, e)'";
+        var str1 = "FUNC_CODE = 'aA'";
+
         var result = tokenizer.getMergedArray(str);
+        var result1 = tokenizer.getMergedArray(str1);
 
         expect(result).toEqual(["A","and","b","and","'(c, d, e)'"]);
+        expect(result1).toEqual(["FUNC_CODE","=","'aA'"]);
+
     });
 });
