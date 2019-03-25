@@ -80,6 +80,11 @@ Lexer.prototype.generateNodeList = function () {
     });
 }
 
+Lexer.prototype.generateAST = function(){
+    var nodeListist = this.generateNodeList();
+    return  this.GenerateAstNode(nodeListist);
+}
+
 function isMathExpr(str) {
     var mathTokens = ['=', 'in', 'like'];
     return mathTokens.filter(o => o === str.toLowerCase()).length > 0;

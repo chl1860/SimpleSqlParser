@@ -62,8 +62,7 @@ describe('Lexer test', function () {
     it('tests generate ast node with logical node', function () {
         var str2 = "FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM')"
         var lexer = new Lexer(str2);
-        var nodeListist = lexer.generateNodeList();
-        var ast = lexer.GenerateAstNode(nodeListist);
+        var ast = lexer.generateAST();
 
         var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
         var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
