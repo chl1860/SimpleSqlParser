@@ -14,26 +14,59 @@ Lexer.prototype.GenerateAstNode = function (nodeList) {
     // var nodeList = this.generateNodeList();
     var self = this;
     var len = nodeList.length;
+    if (!/\barray\b/ig.test(Object.prototype.toString.call(nodeList))) {
+        throw 'The parameter of GenerateAstNode should be array';
+    }
     if (len === 0) {
         return null;
     }
-    if (1 === len) {
+    else if (len === 1) {
         return nodeList[len - 1];
+    } else {
+        //生成树
+        return nodeList.reduce((prev, curr, index, array) => {
+            if (curr.type === 'MathExpr') {
+                if (prev.type === 'Literal') {
+                    curr.left = prev;
+                    prev.parent = curr;
+                    return curr;
+                } else if (prev.type === 'LogicalExpr') {
+                    curr.left = prev.right;
+                    prev.right.parent = curr;
+                    prev.right = curr;
+                    curr.parent = prev;
 
-    } else if (len === 2 || len === -1) {
-        throw "The node list's length error";
+                    return prev;
+                }
+
+            } else if (curr.type === 'LogicalExpr') {
+                curr.left = prev;
+                prev.parent = curr;
+
+                return curr;
+            } else if (curr.type === 'Literal') {
+                if (prev.type === 'LogicalExpr' || prev.type === 'MathExpr') {
+                    if (prev.right === null) {
+                        prev.right = curr;
+                        curr.parent = prev;
+                    }else{
+                        let p = prev;
+                        let temp = null
+                        while(p){
+                            temp = p;
+                            p = p.right;
+                        }
+                        temp.right = curr;
+                        curr.parent = temp;
+                    }
+                    return prev;
+                }
+                return curr;
+            }
+        });
     }
- 
-    nodeList[len - 2].left = nodeList[len - 3]
-    nodeList[len - 2].left.parent = nodeList[len - 2];
-    nodeList[len - 2].right = nodeList[len - 1];
-    nodeList[len - 2].right.parent = nodeList[len - 2];
-
-    nodeList.splice(len - 3, 1);
-    nodeList.splice(nodeList.length - 1, 1);
-
-    return self.GenerateAstNode(nodeList);
 }
+
 
 Lexer.prototype.generateNodeList = function () {
     return this.tokenArray.map(o => {
