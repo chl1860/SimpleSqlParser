@@ -60,7 +60,7 @@ describe('Lexer test', function () {
     });
 
     it('tests generate ast node with logical node', function () {
-        var str2 = "FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM')"
+        var str2 = "FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM', 'NNN')"
         var lexer = new Lexer(str2);
         var ast = lexer.generateAST();
 
@@ -85,7 +85,7 @@ describe('Lexer test', function () {
         regEqNode.parent = andNode;
 
         var inFieldNode = new ASTNode('Literal', 'TT', null, null, null);
-        var inValNode = new ASTNode('Literal', "('MMMM')", null, null, null);
+        var inValNode = new ASTNode('Literal', "('MMMM', 'NNN')", null, null, null);
         var inNode = new ASTNode('MathExpr', 'IN', null, null, null);
         var orNode = new ASTNode('LogicalExpr', 'OR', null, null, null);
         orNode.left = andNode;

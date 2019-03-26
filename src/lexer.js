@@ -1,15 +1,13 @@
 var ASTNode = require('./astnode').ASTNode;
 var Tokenizer = require('./token').Tokenizer;
+var Util = require('./util').Util;
 
 function Lexer(str) {
     let tokenizer = new Tokenizer();
     this.tokenArray = tokenizer.getMergedArray(str);
+    this.util = new Util(); 
 }
 
-/**
- * 根据词法对 str 进行拆分
- * @example "FUNC_CODE='ABC' AND REGION_CODE = 'MN'" => ["FUNC_CODE='ABC'","REGION_CODE = 'MN'"]
- */
 Lexer.prototype.GenerateAstNode = function (nodeList) {
     // var nodeList = this.generateNodeList();
     var self = this;
@@ -69,10 +67,11 @@ Lexer.prototype.GenerateAstNode = function (nodeList) {
 
 
 Lexer.prototype.generateNodeList = function () {
-    return this.tokenArray.map(o => {
-        if (isMathExpr(o)) {
+    var self = this;
+    return self.tokenArray.map(o => {
+        if (self.util.isMathExpr(o)) {
             return new ASTNode("MathExpr", o, null, null, null);
-        } else if (isLogicExpr(o)) {
+        } else if (self.util.isLogicExpr(o)) {
             return new ASTNode("LogicalExpr", o, null, null, null);
         } else {
             return new ASTNode("Literal", o, null, null, null);
@@ -83,17 +82,6 @@ Lexer.prototype.generateNodeList = function () {
 Lexer.prototype.generateAST = function(){
     var nodeListist = this.generateNodeList();
     return  this.GenerateAstNode(nodeListist);
-}
-
-function isMathExpr(str) {
-    var mathTokens = ['=', 'in', 'like'];
-    return mathTokens.filter(o => o === str.toLowerCase()).length > 0;
-}
-
-function isLogicExpr(str) {
-    var logicTokens = ['AND', 'OR']
-    return logicTokens.filter(o => o === str.toUpperCase()).length > 0;
-
 }
 
 module.exports = {
