@@ -22,6 +22,22 @@ describe('Stack test',function(){
         expect(stack.array[len-1]).toBe(2);
     });
 
+    it("tests stack len after pop method excuted",function(){
+        expect(stack.len).toBe(0);
+        expect(stack.pop()).toBeUndefined();
+        
+        stack.push(1);
+        stack.push(2);
+        stack.push(3);
+        
+        expect(stack.len).toBe(3);
+
+        stack.pop();
+        expect(stack.len).toBe(2);
+        
+
+    });
+
     it("tests stack pop method",function(){
         stack.push(1);
         stack.push(2);
@@ -31,6 +47,7 @@ describe('Stack test',function(){
         
         expect(item).toBe(3);
     });
+
 
     it("tests stack clear method",function(){
         stack.push(1);

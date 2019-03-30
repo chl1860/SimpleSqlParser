@@ -33,7 +33,7 @@ function GenerateMathSearchFilter(root) {
     };
 
     return {
-        groupOpt: root.parent ? root.parent.value : 'And',
+        groupOp: root.parent ? root.parent.value : 'AND',
         rules: [{
             data: right.value.replace(/\'/g, ''),
             field: left.value,
@@ -48,7 +48,7 @@ function GenerateInSearchFilter(root) {
     var valList = right.value.replace(/(?:\(|\)|\')/g, '').split(',');
 
     return {
-        groupOpt: 'Or',
+        groupOp: 'OR',
         rules: valList.map(o => {
             return {
                 data: o.replace(/(?:^\s|\s$)/g,''),
@@ -74,7 +74,7 @@ function GenerateLikeSearchFilter(root) {
     }
 
     return {
-        groupOpt: root.parent ? root.parent.value : 'And',
+        groupOp: root.parent ? root.parent.value : 'AND',
         rules: [{
             data: right.value.replace(/(?:^\s|\s$|\%|\')/g,''),
             field: left.value,
@@ -100,8 +100,8 @@ Parser.prototype.TraverseTreeToGenerateRules = function(root) {
 Parser.prototype.parse = function () {
     this.TraverseTreeToGenerateRules(this.ast);
     //对 and 和 or 进行分类
-    let andFilterList = this.list.filter(o => /\bAnd\b/ig.test(o.groupOpt));
-    let orFilterList = this.list.filter(o => /\bor\b/ig.test(o.groupOpt));
+    let andFilterList = this.list.filter(o => /\band\b/ig.test(o.groupOp));
+    let orFilterList = this.list.filter(o => /\bor\b/ig.test(o.groupOp));
     let andRules = [];
     let orRules = [];
 
@@ -122,11 +122,11 @@ Parser.prototype.parse = function () {
     orRules = orRules.filter(o => !(/^1$/g.test(o.data) && o.op === 'eq' && /^1$/g.test(o.field)));
     return {
         AndFilters: {
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: andRules.length > 0 ? andRules : []
         },
         OrFilters: {
-            groupOpt: 'Or',
+            groupOp: 'OR',
             rules: orRules.length > 0 ? orRules : []
         }
     }

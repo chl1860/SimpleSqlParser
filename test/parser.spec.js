@@ -50,7 +50,7 @@ describe('Test parse', function () {
         var result5 = ParserNm.GenerateMathSearchFilter(funcEqNode5);
 
         expect(result).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'eq',
@@ -59,7 +59,7 @@ describe('Test parse', function () {
         });
 
         expect(result2).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'gt',
@@ -68,7 +68,7 @@ describe('Test parse', function () {
         });
 
         expect(result3).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'lt',
@@ -77,7 +77,7 @@ describe('Test parse', function () {
         });
 
         expect(result4).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'le',
@@ -86,7 +86,7 @@ describe('Test parse', function () {
         });
 
         expect(result5).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'ge',
@@ -107,7 +107,7 @@ describe('Test parse', function () {
         inValNode.parent = inNode;
 
         expect(ParserNm.GenerateInSearchFilter(inNode)).toEqual({
-            groupOpt: 'Or',
+            groupOp: 'OR',
             rules: [
                 { data: 'MMMM', op: 'eq', field: 'TT' },
                 { data: 'Tsss', op: 'eq', field: 'TT' },
@@ -141,21 +141,21 @@ describe('Test parse', function () {
         funcValNode2.parent = funcEqNode2;
 
         expect(ParserNm.GenerateLikeSearchFilter(funcEqNode)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [
                 { data: 'BB', op: 'cn', field: 'FUNC_CODE' }
             ]
         });
 
         expect(ParserNm.GenerateLikeSearchFilter(funcEqNode1)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [
                 { data: 'BB', op: 'ew', field: 'FUNC_CODE' }
             ]
         });
 
         expect(ParserNm.GenerateLikeSearchFilter(funcEqNode2)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [
                 { data: 'BB', op: 'sw', field: 'FUNC_CODE' }
             ]
@@ -173,7 +173,7 @@ describe('Test parse', function () {
         funcValNode.parent = funcEqNode;
 
         expect(ParserNm.GenerateFitlter(funcEqNode)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'eq',
@@ -190,7 +190,7 @@ describe('Test parse', function () {
         funcValNode2.parent = funcEqNode2;
 
         expect(ParserNm.GenerateFitlter(funcEqNode2)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'gt',
@@ -207,7 +207,7 @@ describe('Test parse', function () {
         funcValNode2.parent = funcEqNode3;
 
         expect(ParserNm.GenerateFitlter(funcEqNode3)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'lt',
@@ -224,7 +224,7 @@ describe('Test parse', function () {
         funcValNode4.parent = funcEqNode4;
 
         expect(ParserNm.GenerateFitlter(funcEqNode4)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'ge',
@@ -241,7 +241,7 @@ describe('Test parse', function () {
         funcValNode5.parent = funcEqNode5;
 
         expect(ParserNm.GenerateFitlter(funcEqNode5)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'le',
@@ -275,21 +275,21 @@ describe('Test parse', function () {
         funcValNode8.parent = funcEqNode8;
 
         expect(ParserNm.GenerateLikeSearchFilter(funcEqNode6)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [
                 { data: 'BB', op: 'cn', field: 'FUNC_CODE' }
             ]
         });
 
         expect(ParserNm.GenerateLikeSearchFilter(funcEqNode7)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [
                 { data: 'BB', op: 'ew', field: 'FUNC_CODE' }
             ]
         });
 
         expect(ParserNm.GenerateLikeSearchFilter(funcEqNode8)).toEqual({
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [
                 { data: 'BB', op: 'sw', field: 'FUNC_CODE' }
             ]
@@ -310,7 +310,7 @@ describe('Test parse', function () {
 
         parser.TraverseTreeToGenerateRules(funcEqNode);
         expect(parser.list).toEqual([{
-            groupOpt: 'And',
+            groupOp: 'AND',
             rules: [{
                 data: 'BB',
                 op: 'eq',
@@ -345,7 +345,7 @@ describe('Test parse', function () {
         parser.TraverseTreeToGenerateRules(andNode);
         expect(parser.list).toEqual([
             {
-                groupOpt: 'AND',
+                groupOp: 'AND',
                 rules: [{
                     data: 'BB',
                     op: 'eq',
@@ -353,7 +353,7 @@ describe('Test parse', function () {
                 }]
             },
             {
-                groupOpt: 'AND',
+                groupOp: 'AND',
                 rules: [{
                     data: 'CC',
                     op: 'eq',
@@ -407,8 +407,8 @@ describe('Test parse', function () {
     it('tests filter of parse method', function () {
         var parser = new ParserNm.Parser("FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM', 'NNN')");
         parser.TraverseTreeToGenerateRules(parser.ast);
-        var andLen = parser.list.filter(o => /\bAnd\b/ig.test(o.groupOpt)).length;
-        var orLen = parser.list.filter(o => /\bor\b/ig.test(o.groupOpt)).length;
+        var andLen = parser.list.filter(o => /\bAND\b/ig.test(o.groupOp)).length;
+        var orLen = parser.list.filter(o => /\bor\b/ig.test(o.groupOp)).length;
 
         expect(andLen).toBe(2);
         expect(orLen).toBe(1);
