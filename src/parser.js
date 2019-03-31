@@ -1,8 +1,7 @@
 var Lexer = require('./lexer').Lexer;
 
 function Parser(str) {
-    let lexer = new Lexer(str);
-    this.ast = lexer.generateAST();
+    this.lexer = new Lexer(str);
     this.list = [];
 }
 
@@ -51,7 +50,7 @@ function GenerateInSearchFilter(root) {
         groupOp: 'OR',
         rules: valList.map(o => {
             return {
-                data: o.replace(/(?:^\s|\s$)/g,''),
+                data: o.replace(/(?:^\s|\s$)/g, ''),
                 op: 'eq',
                 field: left.value
             };
@@ -76,14 +75,78 @@ function GenerateLikeSearchFilter(root) {
     return {
         groupOp: root.parent ? root.parent.value : 'AND',
         rules: [{
-            data: right.value.replace(/(?:^\s|\s$|\%|\')/g,''),
+            data: right.value.replace(/(?:^\s|\s$|\%|\')/g, ''),
             field: left.value,
             op
         }]
     };
 }
 
-Parser.prototype.TraverseTreeToGenerateRules = function(root) {
+//生成 AST
+
+Parser.prototype.generateAstNode = function (nodeList) {
+    // var nodeList = this.generateTokenizedNodeList();
+    var self = this;
+    var len = nodeList.length;
+    if (!/\barray\b/ig.test(Object.prototype.toString.call(nodeList))) {
+        throw 'The parameter of generateAstNode should be array';
+    }
+    if (len === 0) {
+        return null;
+    }
+    else if (len === 1) {
+        return nodeList[len - 1];
+    } else {
+        //生成树
+        return nodeList.reduce((prev, curr, index, array) => {
+            if (curr.type === 'MathExpr') {
+                if (prev.type === 'Literal') {
+                    curr.left = prev;
+                    prev.parent = curr;
+                    return curr;
+                } else if (prev.type === 'LogicalExpr') {
+                    curr.left = prev.right;
+                    prev.right.parent = curr;
+                    prev.right = curr;
+                    curr.parent = prev;
+
+                    return prev;
+                }
+
+            } else if (curr.type === 'LogicalExpr') {
+                curr.left = prev;
+                prev.parent = curr;
+
+                return curr;
+            } else if (curr.type === 'Literal') {
+                if (prev.type === 'LogicalExpr' || prev.type === 'MathExpr') {
+                    if (prev.right === null) {
+                        prev.right = curr;
+                        curr.parent = prev;
+                    } else {
+                        let p = prev;
+                        let temp = null
+                        while (p) {
+                            temp = p;
+                            p = p.right;
+                        }
+                        temp.right = curr;
+                        curr.parent = temp;
+                    }
+                    return prev;
+                }
+                return curr;
+            }
+        });
+    }
+}
+
+Parser.prototype.generateAST = function () {
+    var nodeListist = this.lexer.generateTokenizedNodeList();
+    return this.generateAstNode(nodeListist);
+}
+
+Parser.prototype.TraverseTreeToGenerateRules = function (root) {
     //遍历到子节点为 MathExpression 时 生成 searchFilter
     //否则分别遍历左子树和右子树
     var self = this;
@@ -98,7 +161,8 @@ Parser.prototype.TraverseTreeToGenerateRules = function(root) {
 }
 
 Parser.prototype.parse = function () {
-    this.TraverseTreeToGenerateRules(this.ast);
+    var ast = this.generateAST();
+    this.TraverseTreeToGenerateRules(ast);
     //对 and 和 or 进行分类
     let andFilterList = this.list.filter(o => /\band\b/ig.test(o.groupOp));
     let orFilterList = this.list.filter(o => /\bor\b/ig.test(o.groupOp));
@@ -119,7 +183,8 @@ Parser.prototype.parse = function () {
 
     //清理 1=1 的选项
     andRules = andRules.filter(o => !(/^1$/g.test(o.data) && o.op === 'eq' && /^1$/g.test(o.field)));
-    orRules = orRules.filter(o => !(/^1$/g.test(o.data) && o.op === 'eq' && /^1$/g.test(o.field)));
+    var prevOrRules = orRules.filter(o => (/^1$/g.test(o.data) && o.op === 'eq' && /^1$/g.test(o.field)));
+    orRules = prevOrRules.length > 0 ? [] : prevOrRules;
     return {
         AndFilters: {
             groupOp: 'AND',

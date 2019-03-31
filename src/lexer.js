@@ -1,74 +1,46 @@
 var ASTNode = require('./astnode').ASTNode;
-var Tokenizer = require('./token').Tokenizer;
+
 var Util = require('./util').Util;
 
 function Lexer(str) {
-    let tokenizer = new Tokenizer();
-    this.tokenArray = tokenizer.getMergedArray(str);
+    this.str = str;
     this.util = new Util(); 
 }
 
-Lexer.prototype.GenerateAstNode = function (nodeList) {
-    // var nodeList = this.generateNodeList();
-    var self = this;
-    var len = nodeList.length;
-    if (!/\barray\b/ig.test(Object.prototype.toString.call(nodeList))) {
-        throw 'The parameter of GenerateAstNode should be array';
-    }
-    if (len === 0) {
-        return null;
-    }
-    else if (len === 1) {
-        return nodeList[len - 1];
-    } else {
-        //生成树
-        return nodeList.reduce((prev, curr, index, array) => {
-            if (curr.type === 'MathExpr') {
-                if (prev.type === 'Literal') {
-                    curr.left = prev;
-                    prev.parent = curr;
-                    return curr;
-                } else if (prev.type === 'LogicalExpr') {
-                    curr.left = prev.right;
-                    prev.right.parent = curr;
-                    prev.right = curr;
-                    curr.parent = prev;
+Lexer.prototype.getMergedArray = function (str) {
+    //step1: split str by space
+    let array = str.split(/\s/g);
+    let len = array.length;
+    let result = [];
+    let self = this;
 
-                    return prev;
-                }
+    for (let i = 0, j = i - 1; i < len; i++ , j++) { //merge
+        if (j !== -1 && result[j] && !self.util.isFullString(result[j])) {
 
-            } else if (curr.type === 'LogicalExpr') {
-                curr.left = prev;
-                prev.parent = curr;
+            do {
+                result[j] = `${result[j]} ${array[i]}`
+                i++;
+            } while (!self.util.isFullString(result[j]) && i < len)
 
-                return curr;
-            } else if (curr.type === 'Literal') {
-                if (prev.type === 'LogicalExpr' || prev.type === 'MathExpr') {
-                    if (prev.right === null) {
-                        prev.right = curr;
-                        curr.parent = prev;
-                    }else{
-                        let p = prev;
-                        let temp = null
-                        while(p){
-                            temp = p;
-                            p = p.right;
-                        }
-                        temp.right = curr;
-                        curr.parent = temp;
-                    }
-                    return prev;
-                }
-                return curr;
-            }
-        });
+        } else {
+            result.push(array[i]);
+        }
     }
+
+    result.forEach(o => o.replace(/(?:^\s+|\s+$)/g, "")); //去掉首尾空格
+    //排除：(FUNC_CODE = 'aa') 这一类的情况
+    if (str && result[0] === str) {
+        str = /\(([^\)]*)\)/g.exec(str)[1];
+        return self.getMergedArray(str);
+    }
+
+    return result;
 }
 
-
-Lexer.prototype.generateNodeList = function () {
+Lexer.prototype.generateTokenizedNodeList = function () {
     var self = this;
-    return self.tokenArray.map(o => {
+    var tokenArray = self.getMergedArray(self.str);
+    return tokenArray.map(o => {
         if (self.util.isMathExpr(o)) {
             return new ASTNode("MathExpr", o, null, null, null);
         } else if (self.util.isLogicExpr(o)) {
@@ -77,11 +49,6 @@ Lexer.prototype.generateNodeList = function () {
             return new ASTNode("Literal", o, null, null, null);
         }
     });
-}
-
-Lexer.prototype.generateAST = function(){
-    var nodeListist = this.generateNodeList();
-    return  this.GenerateAstNode(nodeListist);
 }
 
 module.exports = {

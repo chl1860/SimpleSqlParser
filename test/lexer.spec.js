@@ -2,11 +2,34 @@ var Lexer = require('../src/lexer').Lexer;
 var ASTNode = require('../src/astnode').ASTNode;
 
 describe('Lexer test', function () {
-    it('tests generate node list methods', function () {
+
+    it('tests split string by space',function(){
+        var str1 = 'Abc and "CDE" AND "mn"';
+        var array = str1.split(/\s/g);
+        
+        expect(array).toEqual(['Abc','and','\"CDE\"','AND','\"mn\"']);
+    });
+
+    it('tests merged array method',function(){
+        var str = "A and b and '(c, d, e)'";
+        var str1 = "FUNC_CODE = 'aA'";
+        var str2 = "(FUNC_CODE = 'aA')";
+
+        var lexer = new Lexer("");
+        var result = lexer.getMergedArray(str);
+        var result1 = lexer.getMergedArray(str1);
+        var result2 = lexer.getMergedArray(str2);
+
+        expect(result).toEqual(["A","and","b","and","'(c, d, e)'"]);
+        expect(result1).toEqual(["FUNC_CODE","=","'aA'"]);
+        expect(result2).toEqual(["FUNC_CODE","=","'aA'"]);
+
+    });
+    it('tests generate tokenized node list methods', function () {
         var sqlStr = "FUNC_CODE = 'AAA' AND REGION_CODE = 'abc'";
 
         var lexer = new Lexer(sqlStr);
-        var nodeList = lexer.generateNodeList();
+        var nodeList = lexer.generateTokenizedNodeList();
         var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
         var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
         var funcValNode = new ASTNode("Literal", "'AAA'", null, null, null);
@@ -16,89 +39,5 @@ describe('Lexer test', function () {
         var reqValNode = new ASTNode("Literal", "'abc'", null, null, null);
 
         expect(nodeList).toEqual([funcNode, funcEqNode, funcValNode, logicNode, regNode, regEqNode, reqValNode]);
-    });
-
-    it('tests generate ast node by node array with single node', function () {
-
-        var lexer = new Lexer('');
-        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
-        var nodeList = [funcNode];
-
-        var ast = lexer.GenerateAstNode(nodeList);
-        expect(ast).toEqual(nodeList[0])
-    });
-
-    it('tests generate ast node by empty node array', function () {
-        var nodeList = [];
-        var lexer = new Lexer('');
-
-        var ast = lexer.GenerateAstNode(nodeList);
-        expect(ast).toEqual(null);
-    });
-
-    it("tests genert ast method's parameter", function () {
-        var nodeList = '';
-        var lexer = new Lexer('');
-        expect(function () { lexer.GenerateAstNode(nodeList); }).toThrow("The parameter of GenerateAstNode should be array");
-    });
-
-    it('tests  generate ast node methods', function () {
-        var str1 = "FUNC_CODE = 'AAA'";
-        var lexer = new Lexer(str1);
-        var nodeListist = lexer.generateNodeList();
-        var ast = lexer.GenerateAstNode(nodeListist);
-
-        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
-        var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
-        var funcValNode = new ASTNode("Literal", "'AAA'", null, null, null);
-        funcEqNode.left = funcNode;
-        funcEqNode.right = funcValNode;
-        funcNode.parent = funcEqNode;
-        funcValNode.parent = funcEqNode;
-
-        expect(ast).toEqual(funcEqNode);
-    });
-
-    it('tests generate ast node with logical node', function () {
-        var str2 = "FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM', 'NNN')"
-        var lexer = new Lexer(str2);
-        var ast = lexer.generateAST();
-
-        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
-        var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
-        var funcValNode = new ASTNode("Literal", "'BB'", null, null, null);
-        funcEqNode.left = funcNode;
-        funcEqNode.right = funcValNode;
-        funcNode.parent = funcEqNode;
-        funcValNode.parent = funcEqNode;
-
-        var regNode = new ASTNode("Literal", "REGION_CODE", null, null, null);
-        var regEqNode = new ASTNode("MathExpr", "=", null, null, null);
-        var regValNode = new ASTNode("Literal", "'CC'", null, null, null);
-        regEqNode.left = regNode;
-        regEqNode.right = regValNode;
-        regNode.parent = regEqNode;
-        regValNode.parent = regEqNode;
-
-        var andNode = new ASTNode('LogicalExpr', 'AND', funcEqNode, regEqNode, null);
-        funcEqNode.parent = andNode;
-        regEqNode.parent = andNode;
-
-        var inFieldNode = new ASTNode('Literal', 'TT', null, null, null);
-        var inValNode = new ASTNode('Literal', "('MMMM', 'NNN')", null, null, null);
-        var inNode = new ASTNode('MathExpr', 'IN', null, null, null);
-        var orNode = new ASTNode('LogicalExpr', 'OR', null, null, null);
-        orNode.left = andNode;
-        orNode.right = inNode;
-        andNode.parent = orNode;
-
-        inNode.parent = orNode;
-        inNode.left = inFieldNode;
-        inFieldNode.parent = inNode;
-        
-        inNode.right = inValNode;
-        inValNode.parent = inNode;
-
-        expect(ast).toEqual(orNode);
     });
 })

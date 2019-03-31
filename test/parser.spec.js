@@ -1,7 +1,104 @@
 var ParserNm = require('../src/parser')
 var ASTNode = require('../src/astnode').ASTNode;
+var Lexer = require('../src/lexer').Lexer;
 
 describe('Test parse', function () {
+    it('tests generate ast node by node array with single node', function () {
+
+        var parser = new ParserNm.Parser('');
+        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
+        var nodeList = [funcNode];
+
+        var ast = parser.generateAstNode(nodeList);
+        expect(ast).toEqual(nodeList[0])
+    });
+
+    it('tests generate ast node by empty node array', function () {
+        var nodeList = [];
+        var parser = new ParserNm.Parser('');
+
+        var ast = parser.generateAstNode(nodeList);
+        expect(ast).toEqual(null);
+    });
+
+    it('tests generate ast node by literal node array', function () {
+        var parser = new ParserNm.Parser('');
+        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
+        var funcNode1 = new ASTNode("Literal", "FUNC_CODE1", null, null, null);
+        var nodeList = [funcNode,funcNode1];
+
+        var ast = parser.generateAstNode(nodeList);
+        expect(ast).toEqual(nodeList[1])
+
+    });
+
+    it("tests genert ast method's parameter", function () {
+        var nodeList = '';
+        var parser = new ParserNm.Parser('');
+        expect(function () { parser.generateAstNode(nodeList); }).toThrow("The parameter of generateAstNode should be array");
+    });
+
+    it('tests  generate ast node methods', function () {
+        var str1 = "FUNC_CODE = 'AAA'";
+        var parser = new ParserNm.Parser(str1);
+        var lexer = new Lexer(str1);
+        var nodeListist = lexer.generateTokenizedNodeList();
+        var ast = parser.generateAstNode(nodeListist);
+
+        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
+        var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
+        var funcValNode = new ASTNode("Literal", "'AAA'", null, null, null);
+        funcEqNode.left = funcNode;
+        funcEqNode.right = funcValNode;
+        funcNode.parent = funcEqNode;
+        funcValNode.parent = funcEqNode;
+
+        expect(ast).toEqual(funcEqNode);
+    });
+
+    it('tests generate ast node with logical node', function () {
+        var str2 = "FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM', 'NNN')"
+        var parser = new ParserNm.Parser(str2);
+        var ast = parser.generateAST();
+
+        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
+        var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
+        var funcValNode = new ASTNode("Literal", "'BB'", null, null, null);
+        funcEqNode.left = funcNode;
+        funcEqNode.right = funcValNode;
+        funcNode.parent = funcEqNode;
+        funcValNode.parent = funcEqNode;
+
+        var regNode = new ASTNode("Literal", "REGION_CODE", null, null, null);
+        var regEqNode = new ASTNode("MathExpr", "=", null, null, null);
+        var regValNode = new ASTNode("Literal", "'CC'", null, null, null);
+        regEqNode.left = regNode;
+        regEqNode.right = regValNode;
+        regNode.parent = regEqNode;
+        regValNode.parent = regEqNode;
+
+        var andNode = new ASTNode('LogicalExpr', 'AND', funcEqNode, regEqNode, null);
+        funcEqNode.parent = andNode;
+        regEqNode.parent = andNode;
+
+        var inFieldNode = new ASTNode('Literal', 'TT', null, null, null);
+        var inValNode = new ASTNode('Literal', "('MMMM', 'NNN')", null, null, null);
+        var inNode = new ASTNode('MathExpr', 'IN', null, null, null);
+        var orNode = new ASTNode('LogicalExpr', 'OR', null, null, null);
+        orNode.left = andNode;
+        orNode.right = inNode;
+        andNode.parent = orNode;
+
+        inNode.parent = orNode;
+        inNode.left = inFieldNode;
+        inFieldNode.parent = inNode;
+        
+        inNode.right = inValNode;
+        inValNode.parent = inNode;
+
+        expect(ast).toEqual(orNode);
+    });
+
     it('tests GenerateMathSearchFilter method', function () {
         var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
         var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
@@ -274,7 +371,7 @@ describe('Test parse', function () {
         funcNode8.parent = funcEqNode8;
         funcValNode8.parent = funcEqNode8;
 
-        expect(ParserNm.GenerateLikeSearchFilter(funcEqNode6)).toEqual({
+        expect(ParserNm.GenerateFitlter(funcEqNode6)).toEqual({
             groupOp: 'AND',
             rules: [
                 { data: 'BB', op: 'cn', field: 'FUNC_CODE' }
@@ -363,50 +460,10 @@ describe('Test parse', function () {
         ])
     });
 
-    it('tests parser constructor', function () {
-        var parser = new ParserNm.Parser("FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM', 'NNN')");
-
-        var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
-        var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
-        var funcValNode = new ASTNode("Literal", "'BB'", null, null, null);
-        funcEqNode.left = funcNode;
-        funcEqNode.right = funcValNode;
-        funcNode.parent = funcEqNode;
-        funcValNode.parent = funcEqNode;
-
-        var regNode = new ASTNode("Literal", "REGION_CODE", null, null, null);
-        var regEqNode = new ASTNode("MathExpr", "=", null, null, null);
-        var regValNode = new ASTNode("Literal", "'CC'", null, null, null);
-        regEqNode.left = regNode;
-        regEqNode.right = regValNode;
-        regNode.parent = regEqNode;
-        regValNode.parent = regEqNode;
-
-        var andNode = new ASTNode('LogicalExpr', 'AND', funcEqNode, regEqNode, null);
-        funcEqNode.parent = andNode;
-        regEqNode.parent = andNode;
-
-        var inFieldNode = new ASTNode('Literal', 'TT', null, null, null);
-        var inValNode = new ASTNode('Literal', "('MMMM', 'NNN')", null, null, null);
-        var inNode = new ASTNode('MathExpr', 'IN', null, null, null);
-        var orNode = new ASTNode('LogicalExpr', 'OR', null, null, null);
-        orNode.left = andNode;
-        orNode.right = inNode;
-        andNode.parent = orNode;
-
-        inNode.parent = orNode;
-        inNode.left = inFieldNode;
-        inFieldNode.parent = inNode;
-
-        inNode.right = inValNode;
-        inValNode.parent = inNode;
-
-        expect(parser.ast).toEqual(orNode);
-    });
-
     it('tests filter of parse method', function () {
         var parser = new ParserNm.Parser("FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM', 'NNN')");
-        parser.TraverseTreeToGenerateRules(parser.ast);
+        var ast = parser.generateAST();
+        parser.TraverseTreeToGenerateRules(ast);
         var andLen = parser.list.filter(o => /\bAND\b/ig.test(o.groupOp)).length;
         var orLen = parser.list.filter(o => /\bor\b/ig.test(o.groupOp)).length;
 
