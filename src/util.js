@@ -11,7 +11,7 @@ function Util(){
  * @description 判断是否为计算表达式
  */
 Util.prototype.isMathExpr = function isMathExpr(str) {
-    var mathTokens = [/\=/ig, /\b(?:In)\b/ig, /\blike\b\s+/ig];
+    var mathTokens = [/\=/ig, /\b(?:In)\b/ig, /\blike\b\s+/ig,/\bis\b/ig];
     return mathTokens.filter(o => o.test(str)).length > 0;
 }
 

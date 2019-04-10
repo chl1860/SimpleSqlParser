@@ -28,6 +28,19 @@
             "cwd": "${workspaceRoot}",
             "sourceMaps": true,
             "console": "integratedTerminal"
-        }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jest Debug2",
+            "runtimeArgs": [
+                "--inspect-brk",
+                "${workspaceRoot}/node_modules/.bin/jest",
+                "--runInBand"
+              ],
+              "console": "integratedTerminal",
+              "internalConsoleOptions": "neverOpen",
+              "port": 9229
+        },
     ]
 }

@@ -1,12 +1,14 @@
 var Lexer = require('./lexer').Lexer;
 
 function Parser(str) {
-    this.lexer = new Lexer(str);
+    this.lexer = new Lexer();
+    this.array = this.lexer.getMergedArray(str)
     this.list = [];
 }
 
 function GenerateFitlter(root) {
     switch (root.value.replace(/(?:^\s+|\s+$)/g, '').toUpperCase()) {
+        case 'IS':
         case '=':
         case '>':
         case '<':
@@ -24,6 +26,7 @@ function GenerateMathSearchFilter(root) {
     var left = root.left;
     var right = root.right;
     var opDic = {
+        'IS':'eq',
         '=': 'eq',
         '>': 'gt',
         '>=': 'ge',
@@ -36,7 +39,7 @@ function GenerateMathSearchFilter(root) {
         rules: [{
             data: right.value.replace(/\'/g, ''),
             field: left.value,
-            op: opDic[root.value]
+            op: opDic[root.value.toUpperCase()]
         }]
     };
 }
@@ -84,7 +87,7 @@ function GenerateLikeSearchFilter(root) {
 
 //生成 AST
 
-Parser.prototype.generateAstNode = function (nodeList) {
+Parser.prototype.generateAstNode = function (nodeList = []) {
     // var nodeList = this.generateTokenizedNodeList();
     var self = this;
     var len = nodeList.length;
@@ -142,8 +145,9 @@ Parser.prototype.generateAstNode = function (nodeList) {
 }
 
 Parser.prototype.generateAST = function () {
-    var nodeListist = this.lexer.generateTokenizedNodeList();
-    return this.generateAstNode(nodeListist);
+    var self = this;
+    var nodeListist = self.lexer.generateTokenizedNodeList(self.array);
+    return self.generateAstNode(nodeListist);
 }
 
 Parser.prototype.TraverseTreeToGenerateRules = function (root) {

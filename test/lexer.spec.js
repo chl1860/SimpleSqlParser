@@ -28,8 +28,9 @@ describe('Lexer test', function () {
     it('tests generate tokenized node list methods', function () {
         var sqlStr = "FUNC_CODE = 'AAA' AND REGION_CODE = 'abc'";
 
-        var lexer = new Lexer(sqlStr);
-        var nodeList = lexer.generateTokenizedNodeList();
+        var lexer = new Lexer();
+        var array = lexer.getMergedArray(sqlStr);
+        var nodeList = lexer.generateTokenizedNodeList(array);
         var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
         var funcEqNode = new ASTNode("MathExpr", "=", null, null, null);
         var funcValNode = new ASTNode("Literal", "'AAA'", null, null, null);

@@ -41,8 +41,9 @@ describe('Test parse', function () {
     it('tests  generate ast node methods', function () {
         var str1 = "FUNC_CODE = 'AAA'";
         var parser = new ParserNm.Parser(str1);
-        var lexer = new Lexer(str1);
-        var nodeListist = lexer.generateTokenizedNodeList();
+        var lexer = new Lexer();
+        var array = lexer.getMergedArray(str1);
+        var nodeListist = lexer.generateTokenizedNodeList(array);
         var ast = parser.generateAstNode(nodeListist);
 
         var funcNode = new ASTNode("Literal", "FUNC_CODE", null, null, null);
@@ -56,7 +57,28 @@ describe('Test parse', function () {
         expect(ast).toEqual(funcEqNode);
     });
 
+    it('tests  generate [isnull] ast node methods', function () {
+        
+        var funcNode = new ASTNode("Literal", "Delete", null, null, null);
+        var funcEqNode = new ASTNode("MathExpr", "is", null, null, null);
+        var funcValNode = new ASTNode("Literal", 'NULL', null, null, null);
+        funcEqNode.left = funcNode;
+        funcEqNode.right = funcValNode;
+        funcNode.parent = funcEqNode;
+        funcValNode.parent = funcEqNode;
+
+        var str1 = "Delete is NULL";
+        var parser = new ParserNm.Parser(str1);
+        var lexer = new Lexer();
+        var array = lexer.getMergedArray(str1);
+        var nodeListist = lexer.generateTokenizedNodeList(array);
+        var ast = parser.generateAstNode(nodeListist);
+
+        expect(ast).toEqual(funcEqNode);
+    });
+
     it('tests generate ast node with logical node', function () {
+        debugger;
         var str2 = "FUNC_CODE = 'BB' AND REGION_CODE = 'CC' OR TT IN ('MMMM', 'NNN')"
         var parser = new ParserNm.Parser(str2);
         var ast = parser.generateAST();
@@ -140,11 +162,20 @@ describe('Test parse', function () {
         funcNode5.parent = funcEqNode5;
         funcValNode5.parent = funcEqNode5;
 
+        var funcNode6 = new ASTNode("Literal", "FUNC_CODE", null, null, null);
+        var funcEqNode6 = new ASTNode("MathExpr", "is", null, null, null);
+        var funcValNode6 = new ASTNode("Literal", "NULL", null, null, null);
+        funcEqNode6.left = funcNode6;
+        funcEqNode6.right = funcValNode6;
+        funcNode6.parent = funcEqNode6;
+        funcValNode6.parent = funcEqNode6;
+
         var result = ParserNm.GenerateMathSearchFilter(funcEqNode);
         var result2 = ParserNm.GenerateMathSearchFilter(funcEqNode2);
         var result3 = ParserNm.GenerateMathSearchFilter(funcEqNode3);
         var result4 = ParserNm.GenerateMathSearchFilter(funcEqNode4);
         var result5 = ParserNm.GenerateMathSearchFilter(funcEqNode5);
+        var result6 = ParserNm.GenerateMathSearchFilter(funcEqNode6);
 
         expect(result).toEqual({
             groupOp: 'AND',
@@ -187,6 +218,15 @@ describe('Test parse', function () {
             rules: [{
                 data: 'BB',
                 op: 'ge',
+                field: 'FUNC_CODE'
+            }]
+        });
+
+        expect(result6).toEqual({
+            groupOp: 'AND',
+            rules: [{
+                data: 'NULL',
+                op: 'eq',
                 field: 'FUNC_CODE'
             }]
         });
